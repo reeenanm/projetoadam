@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Estoque</title>
+</head>
+<body>
+    <h1>Atualizar Estoque do Item</h1>
+    
+    <form id="updateForm">
+        <label for="item_id">ID do Item:</label>
+        <input type="text" id="item_id" name="item_id" required><br><br>
+        
+        <label for="quantity">Nova Quantidade:</label>
+        <input type="number" id="quantity" name="quantity" required><br><br>
+        
+        <button type="submit">Atualizar Estoque</button>
+    </form>
+
+    <p id="response"></p>
+
+    <script>
+        document.getElementById('updateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const item_id = document.getElementById('item_id').value;
+            const quantity = document.getElementById('quantity').value;
+
+            fetch(`/update_stock/${item_id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ quantity: parseInt(quantity) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').innerText = data.status ? data.status : data.error;
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = "Erro ao atualizar estoque!";
+            });
+        });
+    </script>
+</body>
+</html>
