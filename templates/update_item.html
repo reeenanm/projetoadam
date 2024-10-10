@@ -13,6 +13,8 @@
         <label for="item_id">ID do Item:</label>
         <input type="text" id="item_id" name="item_id" required><br><br>
         
+        <p><strong>Título do Anúncio:</strong> <span id="item_title">Insira o ID do item</span></p>
+        
         <label for="quantity">Nova Quantidade:</label>
         <input type="number" id="quantity" name="quantity" required><br><br>
         
@@ -22,6 +24,29 @@
     <p id="response"></p>
 
     <script>
+        // Quando o usuário digitar o ID do item, buscar o título do anúncio
+        document.getElementById('item_id').addEventListener('input', function() {
+            const item_id = this.value;
+            
+            if (item_id.length > 0) {
+                fetch(`https://api.mercadolibre.com/items/${item_id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.title) {
+                            document.getElementById('item_title').innerText = data.title;
+                        } else {
+                            document.getElementById('item_title').innerText = "ID do item inválido";
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('item_title').innerText = "Erro ao buscar título do anúncio";
+                    });
+            } else {
+                document.getElementById('item_title').innerText = "Insira o ID do item";
+            }
+        });
+
+        // Enviar a requisição de atualização de estoque
         document.getElementById('updateForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
