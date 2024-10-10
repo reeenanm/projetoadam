@@ -61,3 +61,33 @@ def update_stock(item_id):
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port)
+
+@app.route('/update_stock/<item_id>', methods=['PUT'])
+def update_stock(item_id):
+    # Obter a nova quantidade do corpo da requisição
+    new_quantity = request.json.get('quantity')
+    
+    if new_quantity is None:
+        return jsonify({'error': 'Quantidade não fornecida'}), 400
+    
+    access_token = 'APP_USR-7511527097985348-101014-a028bfcbfa9fdd92660908a308b8ea9e-1281315022'  # Seu Access Token
+    
+    # URL da API do Mercado Livre para atualizar o estoque
+    url = f'https://api.mercadolibre.com/items/{item_id}'
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+
+    # Payload com a nova quantidade de estoque
+    payload = {
+        "available_quantity": new_quantity
+    }
+
+    # Fazer a requisição PUT para a API do Mercado Livre
+    response = requests.put(url, headers=headers, json=payload)
+    
+    if response.status_code == 200:
+        return jsonify({'status': 'Estoque atualizado com sucesso'}), 200
+    else:
+        return jsonify({'error': 'Erro ao atualizar estoque', 'message': response.json()}), response.status_code
