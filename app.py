@@ -7,9 +7,9 @@ app = Flask(__name__)
 
 # Configurações da API do Mercado Livre
 OAUTH_URL = "https://auth.mercadolivre.com.br/authorization"
-CLIENT_ID = '7511527097985348'  # Substitua pelo seu Client ID
-CLIENT_SECRET = 'IvUCyebIc9QqDrLKxwPOANMFE82p8Gz8'  # Substitua pelo seu Client Secret
-REDIRECT_URI = 'https://projetoadam-production.up.railway.app/callback'  # Substitua pela sua URI de redirecionamento
+CLIENT_ID = 'seu_client_id_aqui'  # Substitua pelo seu Client ID
+CLIENT_SECRET = 'seu_client_secret_aqui'  # Substitua pelo seu Client Secret
+REDIRECT_URI = 'https://projetoadam-production.up.railway.app'  # Sem o /callback, conforme o registrado no painel
 ACCESS_TOKEN = 'APP_USR-7511527097985348-101014-a028bfcbfa9fdd92660908a308b8ea9e-1281315022'  # Access Token inicial
 USER_ID = '1281315022'  # Substitua pelo seu user_id
 
@@ -88,7 +88,7 @@ def change_account():
     return redirect(auth_url)
 
 # Rota para processar o código de autorização e obter os tokens
-@app.route('/callback')
+@app.route('/')
 def callback():
     # O Mercado Livre retorna o código de autorização
     code = request.args.get('code')
