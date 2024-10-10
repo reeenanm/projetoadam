@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # Access Token atualizado
 ACCESS_TOKEN = 'APP_USR-7511527097985348-101014-a028bfcbfa9fdd92660908a308b8ea9e-1281315022'
-USER_ID = '1281315022'  # Substitua pelo seu user_id
+USER_ID = '1281315022'  # Seu user_id
 
 # Rota principal
 @app.route('/')
@@ -61,6 +61,7 @@ def update_stock(item_id):
     else:
         return jsonify({'error': 'Erro ao atualizar estoque', 'message': response.json()}), response.status_code
 
+# Configuração do servidor
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=
+    port = int(os.environ.get('PORT', 8080))  # Usando a porta 8080 no Railway
+    app.run(host='0.0.0.0', port=port)  # Corrigido
