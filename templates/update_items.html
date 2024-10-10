@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atualizar Estoque dos Anúncios</title>
+    <title>Atualizar Estoque e Preço dos Anúncios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl7/8+n5zZOB5T2aF/fqbM/aN5HEUn3AjHjp/2Iot" crossorigin="anonymous">
     <style>
         body {
@@ -20,11 +20,19 @@
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
             color: #333; /* Cor do título */
             text-align: center;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            font-size: 0.9rem;
+            font-weight: 400;
+            text-align: center;
             margin-bottom: 30px;
+            color: #666;
         }
 
         .form-control {
@@ -53,33 +61,49 @@
         #response {
             margin-top: 20px;
         }
+
+        .item-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container container-custom">
-        <h1>Atualizar Estoque dos Anúncios</h1>
+        <h1>PROJETO AD4M</h1>
+        <h2>Desenvolvido por RENAN MONTEIRO + CHAT GPT - UNIÃO SINISTRA</h2>
 
         {% if items %}
         <form id="updateForm">
             <table class="table table-striped table-hover text-center">
                 <thead class="table-dark">
                     <tr>
+                        <th scope="col">Foto</th>
                         <th scope="col">Título do Anúncio</th>
+                        <th scope="col">Preço Atual</th>
                         <th scope="col">Quantidade Atual</th>
                         <th scope="col">Nova Quantidade</th>
+                        <th scope="col">Novo Preço</th>
                         <th scope="col">Ação</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in items %}
                     <tr>
+                        <td><img src="{{ item.thumbnail }}" alt="{{ item.title }}" class="item-image"></td>
                         <td>{{ item.title }}</td>
+                        <td>R$ {{ item.price }}</td>
                         <td>{{ item.available_quantity }}</td>
                         <td>
                             <input type="number" class="form-control text-center" id="quantity_{{ item.id }}" name="quantity_{{ item.id }}" placeholder="Nova Quantidade">
                         </td>
                         <td>
-                            <button type="button" class="btn btn-custom" onclick="updateStock('{{ item.id }}')">Atualizar</button>
+                            <input type="number" class="form-control text-center" id="price_{{ item.id }}" name="price_{{ item.id }}" placeholder="Novo Preço">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-custom" onclick="updateStockAndPrice('{{ item.id }}')">Atualizar</button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -96,20 +120,29 @@
     </div>
 
     <script>
-        function updateStock(item_id) {
+        function updateStockAndPrice(item_id) {
             const quantity = document.getElementById(`quantity_${item_id}`).value;
+            const price = document.getElementById(`price_${item_id}`).value;
 
-            if (!quantity) {
-                alert("Por favor, insira uma quantidade válida.");
+            if (!quantity && !price) {
+                alert("Por favor, insira uma quantidade ou preço válido.");
                 return;
             }
 
-            fetch(`/update_stock/${item_id}`, {
+            const bodyData = {};
+            if (quantity) {
+                bodyData.available_quantity = parseInt(quantity);
+            }
+            if (price) {
+                bodyData.price = parseFloat(price);
+            }
+
+            fetch(`/update_stock_price/${item_id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ quantity: parseInt(quantity) })
+                body: JSON.stringify(bodyData)
             })
             .then(response => response.json())
             .then(data => {
@@ -117,7 +150,7 @@
                 document.getElementById('response').classList.add(data.status ? 'alert-success' : 'alert-danger');
             })
             .catch(error => {
-                alert("Erro ao atualizar estoque!");
+                alert("Erro ao atualizar estoque ou preço!");
             });
         }
     </script>

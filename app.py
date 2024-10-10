@@ -76,3 +76,28 @@ def update_stock(item_id):
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))  # Usando a porta 8080 no Railway
     app.run(host='0.0.0.0', port=port)
+
+@app.route('/update_stock_price/<item_id>', methods=['PUT'])
+def update_stock_price(item_id):
+    data = request.json
+    if not data:
+        return jsonify({'error': 'Nenhum dado fornecido.'}), 400
+
+    headers = {
+        'Authorization': f'Bearer {ACCESS_TOKEN}',
+        'Content-Type': 'application/json'
+    }
+
+    payload = {}
+    if 'available_quantity' in data:
+        payload['available_quantity'] = data['available_quantity']
+    if 'price' in data:
+        payload['price'] = data['price']
+
+    url = f'https://api.mercadolibre.com/items/{item_id}'
+    response = requests.put(url, headers=headers, json=payload)
+
+    if response.status_code == 200:
+        return jsonify({'status': 'Atualização bem-sucedida'}), 200
+    else:
+        return jsonify({'error': 'Erro ao atualizar', 'message': response.json()}), response.status_code
