@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 # Configurações da API do Mercado Livre
 OAUTH_URL = "https://auth.mercadolivre.com.br/authorization"
-CLIENT_ID = 'seu_client_id_aqui'  # Substitua pelo seu Client ID
-CLIENT_SECRET = 'seu_client_secret_aqui'  # Substitua pelo seu Client Secret
+CLIENT_ID = '7511527097985348'  # Substitua pelo seu Client ID
+CLIENT_SECRET = 'IvUCyebIc9QqDrLKxwPOANMFE82p8Gz8'  # Substitua pelo seu Client Secret
 REDIRECT_URI = 'https://projetoadam-production.up.railway.app'  # Sem o /callback, conforme o registrado no painel
 ACCESS_TOKEN = None  # Access Token será atualizado dinamicamente
 USER_ID = None  # User ID será atualizado dinamicamente
