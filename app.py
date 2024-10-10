@@ -65,3 +65,9 @@ def update_stock(item_id):
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))  # Usando a porta 8080 no Railway
     app.run(host='0.0.0.0', port=port)  # Corrigido
+
+from flask import render_template
+
+@app.route('/update_item')
+def update_item_page():
+    return render_template('update_item.html')
