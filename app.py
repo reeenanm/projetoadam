@@ -13,6 +13,38 @@ REDIRECT_URI = 'https://projetoadam-production.up.railway.app'  # Sem o /callbac
 ACCESS_TOKEN = None  # Access Token será atualizado dinamicamente
 USER_ID = None  # User ID será atualizado dinamicamente
 
+# Função para carregar tokens do arquivo
+def load_tokens():
+    global ACCESS_TOKEN, USER_ID
+    try:
+        with open('tokens.json', 'r') as token_file:
+            tokens = json.load(token_file)
+            ACCESS_TOKEN = tokens.get('access_token')
+            USER_ID = tokens.get('user_id')
+            print(f"Tokens carregados: ACCESS_TOKEN={ACCESS_TOKEN}, USER_ID={USER_ID}")
+    except FileNotFoundError:
+        print("Arquivo de tokens não encontrado.")
+
+# Função para salvar tokens no arquivo (com caminho absoluto)
+def save_tokens(access_token, refresh_token, user_id):
+    # Caminho absoluto para o arquivo
+    file_path = os.path.join(os.getcwd(), 'tokens.json')
+    
+    print(f"Salvando tokens no arquivo: {file_path}")  # Log para verificar o caminho do arquivo
+    
+    # Salvando tokens no arquivo
+    with open(file_path, 'w') as token_file:
+        token_data = {
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'user_id': user_id
+        }
+        json.dump(token_data, token_file)
+        print("Tokens salvos com sucesso.")
+
+# Carregar tokens ao iniciar a aplicação
+load_tokens()
+
 # Função para buscar os detalhes de um item
 def get_item_details(item_id):
     url = f'https://api.mercadolibre.com/items/{item_id}'
@@ -58,39 +90,6 @@ def update_items_page():
     else:
         return jsonify({'error': 'Erro ao buscar anúncios', 'message': response.json()}), response.status_code
 
-# Rota para atualizar estoque e preço de um item
-@app.route('/update_stock_price/<item_id>', methods=['PUT'])
-def update_stock_price(item_id):
-    data = request.json
-    if not data:
-        return jsonify({'error': 'Nenhum dado fornecido.'}), 400
-
-    headers = {
-        'Authorization': f'Bearer {ACCESS_TOKEN}',
-        'Content-Type': 'application/json'
-    }
-
-    payload = {}
-    if 'available_quantity' in data:
-        payload['available_quantity'] = data['available_quantity']
-    if 'price' in data:
-        payload['price'] = data['price']
-
-    url = f'https://api.mercadolibre.com/items/{item_id}'
-    response = requests.put(url, headers=headers, json=payload)
-
-    if response.status_code == 200:
-        return jsonify({'status': 'Atualização bem-sucedida'}), 200
-    else:
-        return jsonify({'error': 'Erro ao atualizar', 'message': response.json()}), response.status_code
-
-# Rota para redirecionar o usuário para a página de autorização do Mercado Livre
-@app.route('/change_account')
-def change_account():
-    # Redireciona o usuário para a página de autorização do Mercado Livre
-    auth_url = f'{OAUTH_URL}?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}'
-    return redirect(auth_url)
-
 # Rota para processar o código de autorização e obter os tokens
 @app.route('/')
 def callback():
@@ -130,13 +129,7 @@ def callback():
                 USER_ID = user_id  # Atualiza o USER_ID globalmente
                 
                 # Salvar tokens e user_id
-                with open('tokens.json', 'w') as token_file:
-                    token_data = {
-                        'access_token': access_token,
-                        'refresh_token': refresh_token,
-                        'user_id': user_id
-                    }
-                    json.dump(token_data, token_file)
+                save_tokens(access_token, refresh_token, user_id)
 
                 # Atualiza o ACCESS_TOKEN global
                 global ACCESS_TOKEN
