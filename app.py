@@ -8,10 +8,16 @@ app = Flask(__name__)
 ACCESS_TOKEN = 'APP_USR-7511527097985348-101014-a028bfcbfa9fdd92660908a308b8ea9e-1281315022'
 USER_ID = '1281315022'  # Seu user_id
 
-# Rota principal
-@app.route('/')
-def home():
-    return "Integração Mercado Livre", 200
+# Função para buscar os detalhes de um item
+def get_item_details(item_id):
+    url = f'https://api.mercadolibre.com/items/{item_id}'
+    headers = {
+        'Authorization': f'Bearer {ACCESS_TOKEN}'
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    return None
 
 # Rota para buscar anúncios e renderizar página de alteração de estoque
 @app.route('/update_items', methods=['GET'])
@@ -24,7 +30,19 @@ def update_items_page():
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
-        items = response.json().get('results', [])
+        item_ids = response.json().get('results', [])
+        items = []
+        
+        # Para cada item_id, buscar os detalhes do item
+        for item_id in item_ids:
+            item_details = get_item_details(item_id)
+            if item_details:
+                items.append({
+                    'id': item_details['id'],
+                    'title': item_details['title'],
+                    'available_quantity': item_details['available_quantity']
+                })
+        
         return render_template('update_items.html', items=items)
     else:
         return jsonify({'error': 'Erro ao buscar anúncios', 'message': response.json()}), response.status_code

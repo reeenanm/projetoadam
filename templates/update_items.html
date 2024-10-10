@@ -23,12 +23,13 @@
                 <tbody>
                     {% for item in items %}
                     <tr>
-                        <td>{{ item }}</td>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.available_quantity }}</td>
                         <td>
-                            <input type="number" id="quantity_{{ item }}" name="quantity_{{ item }}" placeholder="Nova Quantidade">
+                            <input type="number" id="quantity_{{ item.id }}" name="quantity_{{ item.id }}" placeholder="Nova Quantidade">
                         </td>
                         <td>
-                            <button type="button" onclick="updateStock('{{ item }}')">Atualizar</button>
+                            <button type="button" onclick="updateStock('{{ item.id }}')">Atualizar</button>
                         </td>
                     </tr>
                     {% endfor %}
