@@ -1,12 +1,9 @@
-import os
-from flask import Flask
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route('/')
-def hello_world():
-    return 'Hello, Mercado Livre!'
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8080))  # Usa a porta 8080 ou a que estiver configurada no ambiente
-    app.run(host='0.0.0.0', port=port)
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    data = request.json  # Dados da notificação do Mercado Livre
+    print(f'Dados recebidos: {data}')
+    return jsonify({'status': 'received'}), 200
