@@ -9,7 +9,7 @@ app = Flask(__name__)
 OAUTH_URL = "https://auth.mercadolivre.com.br/authorization"
 CLIENT_ID = '7511527097985348'  # Substitua pelo seu Client ID
 CLIENT_SECRET = 'IvUCyebIc9QqDrLKxwPOANMFE82p8Gz8'  # Substitua pelo seu Client Secret
-REDIRECT_URI = 'https://projetoadam-production.up.railway.app/callback'  # Substitua pela sua URI de redirecionamento
+REDIRECT_URI = 'https://projetoadam-production.up.railway.app'  # Substitua pela sua URI de redirecionamento
 ACCESS_TOKEN = 'APP_USR-7511527097985348-101014-a028bfcbfa9fdd92660908a308b8ea9e-1281315022'  # Access Token inicial
 USER_ID = '1281315022'  # Substitua pelo seu user_id
 
