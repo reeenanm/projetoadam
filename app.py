@@ -13,28 +13,21 @@ USER_ID = '1281315022'  # Seu user_id
 def home():
     return "Integração Mercado Livre", 200
 
-# Rota para buscar pedidos
-@app.route('/orders', methods=['GET'])
-def get_orders():
-    url = f'https://api.mercadolibre.com/orders/search?seller={USER_ID}'
+# Rota para buscar anúncios e renderizar página de alteração de estoque
+@app.route('/update_items', methods=['GET'])
+def update_items_page():
+    url = f'https://api.mercadolibre.com/users/{USER_ID}/items/search'
     headers = {
         'Authorization': f'Bearer {ACCESS_TOKEN}'
     }
 
     response = requests.get(url, headers=headers)
-    
-    if response.status_code == 200:
-        orders = response.json()
-        return jsonify(orders), 200
-    else:
-        return jsonify({'error': 'Erro ao buscar pedidos', 'message': response.json()}), response.status_code
 
-# Rota para o webhook
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    data = request.json  # Pega os dados enviados no webhook
-    print(f'Dados recebidos do webhook: {data}')
-    return jsonify({'status': 'success'}), 200
+    if response.status_code == 200:
+        items = response.json().get('results', [])
+        return render_template('update_items.html', items=items)
+    else:
+        return jsonify({'error': 'Erro ao buscar anúncios', 'message': response.json()}), response.status_code
 
 # Rota para atualizar estoque de um item via formulário
 @app.route('/update_stock/<item_id>', methods=['PUT'])
@@ -43,8 +36,6 @@ def update_stock(item_id):
     
     if new_quantity is None:
         return jsonify({'error': 'Quantidade não fornecida ou formato incorreto.'}), 400
-    
-    print(f'Atualizando estoque do item {item_id} para {new_quantity} unidades')
 
     url = f'https://api.mercadolibre.com/items/{item_id}'
     headers = {
@@ -62,11 +53,6 @@ def update_stock(item_id):
         return jsonify({'status': 'Estoque atualizado com sucesso'}), 200
     else:
         return jsonify({'error': 'Erro ao atualizar estoque', 'message': response.json()}), response.status_code
-
-# Rota para exibir o formulário de atualização de estoque
-@app.route('/update_item', methods=['GET'])
-def update_item_page():
-    return render_template('update_item.html')
 
 # Configuração do servidor
 if __name__ == '__main__':

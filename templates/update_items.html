@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Estoque dos Anúncios</title>
+</head>
+<body>
+    <h1>Atualizar Estoque dos Anúncios</h1>
+
+    {% if items %}
+        <form id="updateForm">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título do Anúncio</th>
+                        <th>Quantidade Atual</th>
+                        <th>Nova Quantidade</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item }}</td>
+                        <td>
+                            <input type="number" id="quantity_{{ item }}" name="quantity_{{ item }}" placeholder="Nova Quantidade">
+                        </td>
+                        <td>
+                            <button type="button" onclick="updateStock('{{ item }}')">Atualizar</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    {% else %}
+        <p>Nenhum anúncio encontrado.</p>
+    {% endif %}
+
+    <p id="response"></p>
+
+    <script>
+        function updateStock(item_id) {
+            const quantity = document.getElementById(`quantity_${item_id}`).value;
+
+            if (!quantity) {
+                alert("Por favor, insira uma quantidade válida.");
+                return;
+            }
+
+            fetch(`/update_stock/${item_id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ quantity: parseInt(quantity) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.status ? data.status : data.error);
+            })
+            .catch(error => {
+                alert("Erro ao atualizar estoque!");
+            });
+        }
+    </script>
+</body>
+</html>
