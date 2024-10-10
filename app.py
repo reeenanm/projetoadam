@@ -7,11 +7,11 @@ app = Flask(__name__)
 
 # Configurações da API do Mercado Livre
 OAUTH_URL = "https://auth.mercadolivre.com.br/authorization"
-CLIENT_ID = '7511527097985348'  # Substitua pelo seu Client ID
-CLIENT_SECRET = 'IvUCyebIc9QqDrLKxwPOANMFE82p8Gz8'  # Substitua pelo seu Client Secret
+CLIENT_ID = 'seu_client_id_aqui'  # Substitua pelo seu Client ID
+CLIENT_SECRET = 'seu_client_secret_aqui'  # Substitua pelo seu Client Secret
 REDIRECT_URI = 'https://projetoadam-production.up.railway.app'  # Sem o /callback, conforme o registrado no painel
-ACCESS_TOKEN = 'APP_USR-7511527097985348-101014-a028bfcbfa9fdd92660908a308b8ea9e-1281315022'  # Access Token inicial
-USER_ID = '1281315022'  # Substitua pelo seu user_id
+ACCESS_TOKEN = None  # Access Token será atualizado dinamicamente
+USER_ID = None  # User ID será atualizado dinamicamente
 
 # Função para buscar os detalhes de um item
 def get_item_details(item_id):
@@ -111,19 +111,36 @@ def callback():
             access_token = tokens['access_token']
             refresh_token = tokens['refresh_token']
 
-            # Aqui você pode salvar os tokens em um arquivo, banco de dados, ou outro local seguro
-            with open('tokens.json', 'w') as token_file:
-                token_data = {
-                    'access_token': access_token,
-                    'refresh_token': refresh_token
-                }
-                json.dump(token_data, token_file)
+            # Aqui você salva os tokens e obtém o user_id
+            user_info_url = 'https://api.mercadolibre.com/users/me'
+            headers = {
+                'Authorization': f'Bearer {access_token}'
+            }
 
-            # Atualiza o ACCESS_TOKEN global
-            global ACCESS_TOKEN
-            ACCESS_TOKEN = access_token
+            user_info_response = requests.get(user_info_url, headers=headers)
 
-            return "Conta alterada com sucesso! Tokens salvos."
+            if user_info_response.status_code == 200:
+                user_info = user_info_response.json()
+                user_id = user_info['id']  # Pega o user_id da resposta
+                global USER_ID
+                USER_ID = user_id  # Atualiza o USER_ID globalmente
+                
+                # Salvar tokens e user_id
+                with open('tokens.json', 'w') as token_file:
+                    token_data = {
+                        'access_token': access_token,
+                        'refresh_token': refresh_token,
+                        'user_id': user_id
+                    }
+                    json.dump(token_data, token_file)
+
+                # Atualiza o ACCESS_TOKEN global
+                global ACCESS_TOKEN
+                ACCESS_TOKEN = access_token
+
+                return "Conta alterada com sucesso! Tokens salvos."
+            else:
+                return jsonify({'error': 'Erro ao obter o user_id', 'message': user_info_response.json()}), 400
         else:
             return jsonify({'error': 'Erro ao obter o token de acesso', 'message': response.json()}), 400
     else:
