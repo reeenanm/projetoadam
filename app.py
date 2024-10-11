@@ -8,9 +8,9 @@ app = Flask(__name__)
 
 # Configurações da API do Mercado Livre
 OAUTH_URL = "https://auth.mercadolivre.com.br/authorization"
-CLIENT_ID = '7511527097985348'  # Substitua pelo seu Client ID
-CLIENT_SECRET = 'IvUCyebIc9QqDrLKxwPOANMFE82p8Gz8'  # Substitua pelo seu Client Secret
-REDIRECT_URI = 'https://projetoadam-production.up.railway.app'  # Sem o /callback, conforme o registrado no painel
+CLIENT_ID = '7511527097985348'  # Seu Client ID
+CLIENT_SECRET = 'IvUCyebIc9QqDrLKxwPOANMFE82p8Gz8'  # Seu Client Secret
+REDIRECT_URI = 'https://projetoadam-production.up.railway.app'  # Sem o /callback
 ACCESS_TOKEN = None  # Access Token será atualizado dinamicamente
 USER_ID = None  # User ID será atualizado dinamicamente
 
@@ -40,6 +40,17 @@ def save_tokens(access_token, refresh_token, user_id):
 
 # Carregar tokens ao iniciar a aplicação
 load_tokens()
+
+# Função para buscar os detalhes de um item
+def get_item_details(item_id):
+    url = f'https://api.mercadolibre.com/items/{item_id}'
+    headers = {
+        'Authorization': f'Bearer {ACCESS_TOKEN}'
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json()  # Retornar os detalhes do item como um dicionário
+    return None
 
 # Função para buscar anúncios com paginação
 def get_items_with_pagination(offset=0, limit=10):
