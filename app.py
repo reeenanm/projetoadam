@@ -2,7 +2,6 @@ import os
 import requests
 import json
 from flask import Flask, request, jsonify, render_template
-from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -13,7 +12,19 @@ REDIRECT_URI = 'https://projetoadam-production.up.railway.app'
 ACCESS_TOKEN = None  # Será atualizado dinamicamente
 USER_ID = None  # Será atualizado dinamicamente
 
-# Carregar tokens do arquivo
+# Função para buscar detalhes de um item
+def get_item_details(item_id):
+    url = f'https://api.mercadolibre.com/items/{item_id}'
+    headers = {'Authorization': f'Bearer {ACCESS_TOKEN}'}
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Erro ao buscar detalhes do item {item_id}: {response.status_code}")
+        return None
+
+# Função para carregar tokens
 def load_tokens():
     global ACCESS_TOKEN, USER_ID
     try:
@@ -21,14 +32,15 @@ def load_tokens():
             tokens = json.load(token_file)
             ACCESS_TOKEN = tokens.get('access_token')
             USER_ID = tokens.get('user_id')
-            print(f"Tokens carregados: ACCESS_TOKEN={ACCESS_TOKEN}, USER_ID={USER_ID}")
     except FileNotFoundError:
         print("Arquivo de tokens não encontrado.")
 
-# Salvar tokens no arquivo
+# Carregar tokens ao iniciar a aplicação
+load_tokens()
+
+# Função para salvar tokens
 def save_tokens(access_token, refresh_token, user_id):
-    file_path = os.path.join(os.getcwd(), 'tokens.json')
-    with open(file_path, 'w') as token_file:
+    with open('tokens.json', 'w') as token_file:
         token_data = {
             'access_token': access_token,
             'refresh_token': refresh_token,
@@ -37,141 +49,20 @@ def save_tokens(access_token, refresh_token, user_id):
         json.dump(token_data, token_file)
         print("Tokens salvos com sucesso.")
 
-# Carregar tokens ao iniciar a aplicação
-load_tokens()
-
-# Função para buscar os detalhes de um item usando seu ID
-def get_item_details(item_id):
-    url = f'https://api.mercadolibre.com/items/{item_id}'
-    headers = {
-        'Authorization': f'Bearer {ACCESS_TOKEN}'
-    }
-    response = requests.get(url, headers=headers)
-    
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Erro ao buscar detalhes do item {item_id}: {response.status_code}, {response.text}")
-        return None
-
-# Função para buscar anúncios com paginação
-def get_items_with_pagination(offset=0, limit=10):
-    url = f'https://api.mercadolibre.com/users/{USER_ID}/items/search?offset={offset}&limit={limit}'
-    headers = {
-        'Authorization': f'Bearer {ACCESS_TOKEN}'
-    }
-    response = requests.get(url, headers=headers)
-    
-    if response.status_code == 200:
-        data = response.json()
-        item_ids = data['results']  # IDs dos anúncios
-        total_items = data['paging']['total']  # Total de anúncios disponíveis
-        items = []
-
-        # Buscar os detalhes de cada item usando seus IDs
-        for item_id in item_ids:
-            item_details = get_item_details(item_id)
-            if item_details:
-                items.append({
-                    'id': item_details['id'],
-                    'title': item_details['title'],
-                    'price': item_details['price'],
-                    'available_quantity': item_details['available_quantity'],
-                    'thumbnail': item_details['thumbnail']
-                })
-        return items, total_items
-    else:
-        print(f"Erro ao buscar anúncios: {response.status_code}, {response.text}")
-        return [], 0
-
-# Rota para buscar anúncios e renderizar página de alteração de estoque com paginação
+# Rota para exibir e buscar anúncios
 @app.route('/update_items', methods=['GET'])
 def update_items_page():
-    page = int(request.args.get('page', 1))  # Página atual (padrão é 1)
-    limit = 10  # Quantidade de itens por página
-    offset = (page - 1) * limit  # Calcular o offset com base na página
-
-    # Buscar anúncios com paginação
-    items, total_items = get_items_with_pagination(offset, limit)
-    
-    total_pages = (total_items + limit - 1) // limit  # Número total de páginas
-    
-    return render_template('update_items.html', items=items, page=page, total_pages=total_pages)
-
-# Rota para processar o código de autorização e obter os tokens
-@app.route('/')
-def callback():
-    print("Callback recebido")
-    code = request.args.get('code')
-    print(f"Código de autorização recebido: {code}")
-
-    if code:
-        token_url = 'https://api.mercadolibre.com/oauth/token'
-        payload = {
-            'grant_type': 'authorization_code',
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET,
-            'code': code,
-            'redirect_uri': REDIRECT_URI
-        }
-
-        response = requests.post(token_url, data=payload)
-        print(f"Resposta da API ao obter token: {response.text}")
-
-        if response.status_code == 200:
-            tokens = response.json()
-            access_token = tokens['access_token']
-            refresh_token = tokens['refresh_token']
-
-            user_info_url = 'https://api.mercadolibre.com/users/me'
-            headers = {
-                'Authorization': f'Bearer {access_token}'
-            }
-
-            user_info_response = requests.get(user_info_url, headers=headers)
-            print(f"Resposta da API ao obter user_id: {user_info_response.text}")
-
-            if user_info_response.status_code == 200:
-                user_info = user_info_response.json()
-                user_id = user_info['id']
-                global USER_ID
-                USER_ID = user_id
-
-                save_tokens(access_token, refresh_token, user_id)
-                global ACCESS_TOKEN
-                ACCESS_TOKEN = access_token
-
-                return "Conta alterada com sucesso! Tokens salvos."
-            else:
-                return jsonify({'error': 'Erro ao obter o user_id', 'message': user_info_response.json()}), 400
-        else:
-            return jsonify({'error': 'Erro ao obter o token de acesso', 'message': response.json()}), 400
-    else:
-        return "Código de autorização não recebido", 400
-
-# Configuração do servidor
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port)
-# Adicionando função para buscar anúncios por nome ou ID
-@app.route('/update_items', methods=['GET'])
-def update_items_page():
-    search_query = request.args.get('search')  # Capturar o termo de busca da URL
-    page = int(request.args.get('page', 1))  # Página atual (padrão é 1)
-    limit = 10  # Quantidade de itens por página
-    offset = (page - 1) * limit  # Calcular o offset com base na página
+    search_query = request.args.get('search')  # Captura o termo de busca
+    page = int(request.args.get('page', 1))  # Página atual (padrão 1)
+    limit = 10
+    offset = (page - 1) * limit
 
     if search_query:
-        # Adicionando filtro de busca na API
         url = f'https://api.mercadolibre.com/sites/MLB/search?q={search_query}&limit={limit}&offset={offset}'
     else:
-        # Buscar todos os anúncios se não houver termo de busca
         url = f'https://api.mercadolibre.com/users/{USER_ID}/items/search?offset={offset}&limit={limit}'
-    
-    headers = {
-        'Authorization': f'Bearer {ACCESS_TOKEN}'
-    }
-    
+
+    headers = {'Authorization': f'Bearer {ACCESS_TOKEN}'}
     response = requests.get(url, headers=headers)
     
     if response.status_code == 200:
@@ -179,7 +70,6 @@ def update_items_page():
         item_ids = data.get('results', [])
         total_items = data['paging']['total']
         
-        # Montar lista de detalhes dos itens
         items = []
         for item_id in item_ids:
             item_details = get_item_details(item_id)
@@ -190,15 +80,58 @@ def update_items_page():
                     'price': item_details['price'],
                     'available_quantity': item_details['available_quantity'],
                     'thumbnail': item_details['thumbnail'],
-                    'visits': item_details.get('visits', 'N/A'),  # Visitas
-                    'sold_quantity': item_details.get('sold_quantity', 'N/A'),  # Vendas
-                    'status': item_details['status'],  # Status do anúncio
-                    'date_created': item_details['date_created']  # Data de criação
+                    'visits': item_details.get('visits', 'N/A'),
+                    'sold_quantity': item_details.get('sold_quantity', 'N/A'),
+                    'status': item_details['status'],
+                    'date_created': item_details['date_created']
                 })
         
-        total_pages = (total_items + limit - 1) // limit  # Número total de páginas
-        
+        total_pages = (total_items + limit - 1) // limit
         return render_template('update_items.html', items=items, page=page, total_pages=total_pages)
     else:
         return "Erro ao buscar anúncios", 500
 
+# Função para atualizar itens em massa
+@app.route('/update_all_items', methods=['POST'])
+def update_all_items():
+    for item_id in request.form.keys():
+        if item_id.startswith('stock_'):
+            real_item_id = item_id.split('_')[1]
+            new_stock = request.form[item_id]
+            update_stock(real_item_id, new_stock)
+        elif item_id.startswith('price_'):
+            real_item_id = item_id.split('_')[1]
+            new_price = request.form[item_id]
+            update_price(real_item_id, new_price)
+    
+    return "Todos os itens foram atualizados com sucesso!"
+
+# Função para atualizar estoque
+def update_stock(item_id, new_stock):
+    url = f'https://api.mercadolibre.com/items/{item_id}'
+    headers = {'Authorization': f'Bearer {ACCESS_TOKEN}'}
+    payload = {
+        'available_quantity': int(new_stock)
+    }
+    response = requests.put(url, headers=headers, json=payload)
+    if response.status_code == 200:
+        print(f"Estoque do item {item_id} atualizado com sucesso.")
+    else:
+        print(f"Erro ao atualizar o estoque do item {item_id}: {response.text}")
+
+# Função para atualizar preço
+def update_price(item_id, new_price):
+    url = f'https://api.mercadolibre.com/items/{item_id}'
+    headers = {'Authorization': f'Bearer {ACCESS_TOKEN}'}
+    payload = {
+        'price': float(new_price)
+    }
+    response = requests.put(url, headers=headers, json=payload)
+    if response.status_code == 200:
+        print(f"Preço do item {item_id} atualizado com sucesso.")
+    else:
+        print(f"Erro ao atualizar o preço do item {item_id}: {response.text}")
+
+# Iniciando a aplicação
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))

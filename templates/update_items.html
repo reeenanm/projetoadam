@@ -21,7 +21,6 @@
             color: #ffffff;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
             padding-top: 30px;
         }
         .sidebar a {
@@ -33,13 +32,6 @@
         }
         .sidebar a:hover {
             background-color: #3a3a3a;
-        }
-        .sidebar h2 {
-            text-align: center;
-            font-size: 22px;
-            margin-bottom: 30px;
-            color: #fff;
-            font-weight: bold;
         }
         .content {
             margin-left: 240px;
@@ -80,9 +72,6 @@
             border-radius: 8px;
             cursor: pointer;
         }
-        .search-bar button:hover {
-            background-color: #16a085;
-        }
         .gallery {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -93,8 +82,6 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
-            overflow: hidden;
-            position: relative;
         }
         .item:hover {
             transform: translateY(-5px);
@@ -104,7 +91,6 @@
             width: 100%;
             height: 200px;
             object-fit: cover;
-            border-bottom: 1px solid #ddd;
         }
         .item-details {
             padding: 20px;
@@ -119,6 +105,13 @@
             font-size: 14px;
             color: #777;
         }
+        .info-block {
+            margin-top: 15px;
+            text-align: left;
+        }
+        .info-block p {
+            font-size: 14px;
+        }
         .item input {
             padding: 10px;
             width: 90%;
@@ -127,15 +120,6 @@
             border-radius: 8px;
             font-size: 14px;
         }
-        .item .info-block {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #555;
-            text-align: left;
-        }
-        .item .info-block strong {
-            color: #333;
-        }
         .item button {
             background-color: #1abc9c;
             color: white;
@@ -143,10 +127,6 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .item button:hover {
-            background-color: #16a085;
         }
         .pagination {
             text-align: center;
@@ -160,63 +140,52 @@
             text-decoration: none;
             border-radius: 8px;
         }
-        .pagination a:hover {
-            background-color: #16a085;
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #1abc9c;
-            color: white;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
 
-<!-- Barra lateral moderna -->
 <div class="sidebar">
-    <h2>Projeto AD4M</h2>
     <a href="#">Anúncios</a>
     <a href="#">Estoque</a>
     <a href="#">Relatórios</a>
-    <a href="#">Configurações</a>
 </div>
 
 <header>
     <h1>PROJETO AD4M</h1>
-    <p>Desenvolvido por Renan Monteiro + ChatGPT</p>
+    <p>Desenvolvido por Renan Monteiro + ChatGPT - União Sinistra</p>
 </header>
 
 <div class="content">
     <div class="container">
-        <!-- Barra de busca -->
         <div class="search-bar">
-            <input type="text" placeholder="Digite o nome ou código do anúncio">
+            <input type="text" placeholder="Digite o nome ou código do anúncio" name="search">
             <button>Buscar</button>
         </div>
 
-        <div class="gallery">
-            {% for item in items %}
-            <div class="item">
-                <img src="{{ item['thumbnail'] }}" alt="{{ item['title'] }}" loading="lazy">
-                <div class="item-details">
-                    <h4>{{ item['title'] }}</h4>
-                    <p>Preço: R$ {{ item['price'] }}</p>
-                    <p>Estoque disponível: {{ item['available_quantity'] }}</p>
-                    <div class="info-block">
-                        <p><strong>Visitas:</strong> {{ item['visits'] }}</p>
-                        <p><strong>Vendas:</strong> {{ item['sold_quantity'] }}</p>
-                        <p><strong>Status:</strong> {{ item['status'] }}</p>
-                        <p><strong>Criado em:</strong> {{ item['date_created'] }}</p>
+        <form id="update-form" method="POST" action="/update_all_items">
+            <div class="gallery">
+                {% for item in items %}
+                <div class="item">
+                    <img src="{{ item['thumbnail'] }}" alt="{{ item['title'] }}">
+                    <div class="item-details">
+                        <h4>{{ item['title'] }}</h4>
+                        <p>Preço: R$ {{ item['price'] }}</p>
+                        <p>Estoque disponível: {{ item['available_quantity'] }}</p>
+                        <div class="info-block">
+                            <p><strong>Visitas:</strong> {{ item['visits'] }}</p>
+                            <p><strong>Vendas:</strong> {{ item['sold_quantity'] }}</p>
+                            <p><strong>Status:</strong> {{ item['status'] }}</p>
+                            <p><strong>Criado em:</strong> {{ item['date_created'] }}</p>
+                        </div>
+                        <input type="number" name="stock_{{ item['id'] }}" placeholder="Alterar estoque" value="{{ item['available_quantity'] }}">
+                        <input type="text" name="price_{{ item['id'] }}" placeholder="Alterar preço" value="{{ item['price'] }}">
                     </div>
-                    <input type="number" placeholder="Alterar estoque">
-                    <input type="text" placeholder="Alterar preço">
-                    <button>Salvar</button>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
+
+            <button type="submit">Salvar Alterações em Massa</button>
+        </form>
 
         <div class="pagination">
             {% if page > 1 %}
@@ -231,36 +200,6 @@
         </div>
     </div>
 </div>
-<form id="update-form" method="POST" action="/update_all_items">
-    <div class="gallery">
-        {% for item in items %}
-        <div class="item">
-            <img src="{{ item['thumbnail'] }}" alt="{{ item['title'] }}" loading="lazy">
-            <div class="item-details">
-                <h4>{{ item['title'] }}</h4>
-                <p>Preço: R$ {{ item['price'] }}</p>
-                <p>Estoque disponível: {{ item['available_quantity'] }}</p>
-                <div class="info-block">
-                    <p><strong>Visitas:</strong> {{ item['visits'] }}</p>
-                    <p><strong>Vendas:</strong> {{ item['sold_quantity'] }}</p>
-                    <p><strong>Status:</strong> {{ item['status'] }}</p>
-                    <p><strong>Criado em:</strong> {{ item['date_created'] }}</p>
-                </div>
-                <!-- Inputs para atualização de estoque e preço -->
-                <input type="number" name="stock_{{ item['id'] }}" placeholder="Alterar estoque" value="{{ item['available_quantity'] }}">
-                <input type="text" name="price_{{ item['id'] }}" placeholder="Alterar preço" value="{{ item['price'] }}">
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Botão para salvar todas as mudanças -->
-    <button type="submit" class="update-btn">Salvar Alterações em Massa</button>
-</form>
-
-<footer>
-    <p>© 2024 - Projeto AD4M</p>
-</footer>
 
 </body>
 </html>
