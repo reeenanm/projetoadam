@@ -40,6 +40,20 @@ def save_tokens(access_token, refresh_token, user_id):
 # Carregar tokens ao iniciar a aplicação
 load_tokens()
 
+# Função para buscar os detalhes de um item usando seu ID
+def get_item_details(item_id):
+    url = f'https://api.mercadolibre.com/items/{item_id}'
+    headers = {
+        'Authorization': f'Bearer {ACCESS_TOKEN}'
+    }
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Erro ao buscar detalhes do item {item_id}: {response.status_code}, {response.text}")
+        return None
+
 # Função para buscar anúncios com paginação
 def get_items_with_pagination(offset=0, limit=10):
     url = f'https://api.mercadolibre.com/users/{USER_ID}/items/search?offset={offset}&limit={limit}'
@@ -50,9 +64,21 @@ def get_items_with_pagination(offset=0, limit=10):
     
     if response.status_code == 200:
         data = response.json()
-        print(f"Itens recebidos: {data}")  # Log para verificar os dados recebidos
+        item_ids = data['results']  # IDs dos anúncios
         total_items = data['paging']['total']  # Total de anúncios disponíveis
-        items = data.get('results', [])
+        items = []
+
+        # Buscar os detalhes de cada item usando seus IDs
+        for item_id in item_ids:
+            item_details = get_item_details(item_id)
+            if item_details:
+                items.append({
+                    'id': item_details['id'],
+                    'title': item_details['title'],
+                    'price': item_details['price'],
+                    'available_quantity': item_details['available_quantity'],
+                    'thumbnail': item_details['thumbnail']
+                })
         return items, total_items
     else:
         print(f"Erro ao buscar anúncios: {response.status_code}, {response.text}")
