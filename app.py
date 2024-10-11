@@ -41,95 +41,37 @@ def save_tokens(access_token, refresh_token, user_id):
 # Carregar tokens ao iniciar a aplicação
 load_tokens()
 
-# Função para buscar pedidos filtrados por data
-def get_orders_by_date(from_date, to_date):
-    url = f'https://api.mercadolibre.com/orders/search?seller={USER_ID}&order.date_created.from={from_date}&order.date_created.to={to_date}'
+# Função para buscar anúncios com paginação
+def get_items_with_pagination(offset=0, limit=10):
+    url = f'https://api.mercadolibre.com/users/{USER_ID}/items/search?offset={offset}&limit={limit}'
     headers = {
         'Authorization': f'Bearer {ACCESS_TOKEN}'
     }
     response = requests.get(url, headers=headers)
+    
     if response.status_code == 200:
-        return response.json()['results']
-    return []
+        data = response.json()
+        total_items = data['paging']['total']  # Total de anúncios disponíveis
+        items = data.get('results', [])
+        return items, total_items
+    return [], 0
 
-# Função para calcular o total de vendas e faturamento
-def calculate_sales_metrics(orders):
-    total_orders = len(orders)
-    total_revenue = sum(order['total_amount'] for order in orders)
-    return total_orders, total_revenue
-
-# Função para obter as vendas do dia
-def get_today_sales():
-    today = datetime.now().strftime('%Y-%m-%dT00:00:00.000-00:00')
-    now = datetime.now().strftime('%Y-%m-%dT23:59:59.999-00:00')
-    orders = get_orders_by_date(today, now)
-    return calculate_sales_metrics(orders)
-
-# Função para obter as vendas da semana
-def get_week_sales():
-    today = datetime.now()
-    start_of_week = (today - timedelta(days=today.weekday())).strftime('%Y-%m-%dT00:00:00.000-00:00')
-    now = today.strftime('%Y-%m-%dT23:59:59.999-00:00')
-    orders = get_orders_by_date(start_of_week, now)
-    return calculate_sales_metrics(orders)
-
-# Função para obter as vendas do mês
-def get_month_sales():
-    today = datetime.now()
-    start_of_month = today.replace(day=1).strftime('%Y-%m-%dT00:00:00.000-00:00')
-    now = today.strftime('%Y-%m-%dT23:59:59.999-00:00')
-    orders = get_orders_by_date(start_of_month, now)
-    return calculate_sales_metrics(orders)
-
-# Função para buscar os detalhes de um item
-def get_item_details(item_id):
-    url = f'https://api.mercadolibre.com/items/{item_id}'
-    headers = {
-        'Authorization': f'Bearer {ACCESS_TOKEN}'
-    }
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        return response.json()
-    return None
-
-# Rota para buscar anúncios e renderizar página de alteração de estoque com métricas de vendas
+# Rota para buscar anúncios e renderizar página de alteração de estoque com paginação
 @app.route('/update_items', methods=['GET'])
 def update_items_page():
-    # Obter métricas de vendas
-    today_orders, today_revenue = get_today_sales()
-    week_orders, week_revenue = get_week_sales()
-    month_orders, month_revenue = get_month_sales()
+    # Parâmetros de paginação
+    page = int(request.args.get('page', 1))  # Página atual (padrão é 1)
+    limit = 10  # Quantidade de itens por página
+    offset = (page - 1) * limit  # Calcular o offset com base na página
 
-    # Buscar os itens
-    url = f'https://api.mercadolibre.com/users/{USER_ID}/items/search'
-    headers = {
-        'Authorization': f'Bearer {ACCESS_TOKEN}'
-    }
-
-    response = requests.get(url, headers=headers)
-
-    if response.status_code == 200:
-        item_ids = response.json().get('results', [])
-        items = []
-        
-        for item_id in item_ids:
-            item_details = get_item_details(item_id)
-            if item_details:
-                items.append({
-                    'id': item_details['id'],
-                    'title': item_details['title'],
-                    'price': item_details['price'],
-                    'available_quantity': item_details['available_quantity'],
-                    'thumbnail': item_details['thumbnail']
-                })
-        
-        # Renderizar a página com métricas de vendas no cabeçalho
-        return render_template('update_items.html', items=items, 
-                               today_orders=today_orders, today_revenue=today_revenue, 
-                               week_orders=week_orders, week_revenue=week_revenue, 
-                               month_orders=month_orders, month_revenue=month_revenue)
-    else:
-        return jsonify({'error': 'Erro ao buscar anúncios', 'message': response.json()}), response.status_code
+    # Buscar anúncios com paginação
+    items, total_items = get_items_with_pagination(offset, limit)
+    
+    # Cálculo de páginas
+    total_pages = (total_items + limit - 1) // limit  # Número total de páginas
+    
+    # Renderizar a página de itens com paginação
+    return render_template('update_items.html', items=items, page=page, total_pages=total_pages)
 
 # Rota para processar o código de autorização e obter os tokens
 @app.route('/')

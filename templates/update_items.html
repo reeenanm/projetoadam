@@ -11,19 +11,6 @@
             padding: 0;
             background-color: #f4f4f4;
         }
-        .sales-metrics {
-            background-color: #fff;
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-        .sales-metrics h3 {
-            margin: 10px 0;
-        }
-        .sales-metrics p {
-            font-size: 16px;
-            margin: 5px 0;
-        }
         .container {
             padding: 20px;
         }
@@ -59,20 +46,23 @@
         .item button:hover {
             background-color: #333;
         }
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            margin: 0 10px;
+            padding: 10px 15px;
+            background-color: #ddd;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .pagination a:hover {
+            background-color: #bbb;
+        }
     </style>
 </head>
 <body>
-    <div class="sales-metrics">
-        <h3>Vendas de Hoje</h3>
-        <p>Pedidos: {{ today_orders }} | Faturamento: R$ {{ today_revenue }}</p>
-        
-        <h3>Vendas da Semana</h3>
-        <p>Pedidos: {{ week_orders }} | Faturamento: R$ {{ week_revenue }}</p>
-
-        <h3>Vendas do Mês</h3>
-        <p>Pedidos: {{ month_orders }} | Faturamento: R$ {{ month_revenue }}</p>
-    </div>
-
     <div class="container">
         {% for item in items %}
         <div class="item">
@@ -85,6 +75,18 @@
             <button>Salvar</button>
         </div>
         {% endfor %}
+
+        <div class="pagination">
+            {% if page > 1 %}
+                <a href="?page={{ page - 1 }}">Página Anterior</a>
+            {% endif %}
+
+            <span>Página {{ page }} de {{ total_pages }}</span>
+
+            {% if page < total_pages %}
+                <a href="?page={{ page + 1 }}">Próxima Página</a>
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>
