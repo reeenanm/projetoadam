@@ -1,20 +1,19 @@
 import os
 import requests
 import json
-from flask import Flask, request, jsonify, render_template, redirect
+from flask import Flask, request, jsonify, render_template
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
 # Configurações da API do Mercado Livre
-OAUTH_URL = "https://auth.mercadolivre.com.br/authorization"
 CLIENT_ID = '7511527097985348'  # Seu Client ID
 CLIENT_SECRET = 'IvUCyebIc9QqDrLKxwPOANMFE82p8Gz8'  # Seu Client Secret
-REDIRECT_URI = 'https://projetoadam-production.up.railway.app'  # Sem o /callback
-ACCESS_TOKEN = None  # Access Token será atualizado dinamicamente
-USER_ID = None  # User ID será atualizado dinamicamente
+REDIRECT_URI = 'https://projetoadam-production.up.railway.app'
+ACCESS_TOKEN = None  # Será atualizado dinamicamente
+USER_ID = None  # Será atualizado dinamicamente
 
-# Função para carregar tokens do arquivo
+# Carregar tokens do arquivo
 def load_tokens():
     global ACCESS_TOKEN, USER_ID
     try:
@@ -26,7 +25,7 @@ def load_tokens():
     except FileNotFoundError:
         print("Arquivo de tokens não encontrado.")
 
-# Função para salvar tokens no arquivo (com caminho absoluto)
+# Salvar tokens no arquivo
 def save_tokens(access_token, refresh_token, user_id):
     file_path = os.path.join(os.getcwd(), 'tokens.json')
     with open(file_path, 'w') as token_file:
@@ -41,17 +40,6 @@ def save_tokens(access_token, refresh_token, user_id):
 # Carregar tokens ao iniciar a aplicação
 load_tokens()
 
-# Função para buscar os detalhes de um item
-def get_item_details(item_id):
-    url = f'https://api.mercadolibre.com/items/{item_id}'
-    headers = {
-        'Authorization': f'Bearer {ACCESS_TOKEN}'
-    }
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        return response.json()  # Retornar os detalhes do item como um dicionário
-    return None
-
 # Função para buscar anúncios com paginação
 def get_items_with_pagination(offset=0, limit=10):
     url = f'https://api.mercadolibre.com/users/{USER_ID}/items/search?offset={offset}&limit={limit}'
@@ -62,15 +50,17 @@ def get_items_with_pagination(offset=0, limit=10):
     
     if response.status_code == 200:
         data = response.json()
+        print(f"Itens recebidos: {data}")  # Log para verificar os dados recebidos
         total_items = data['paging']['total']  # Total de anúncios disponíveis
         items = data.get('results', [])
         return items, total_items
-    return [], 0
+    else:
+        print(f"Erro ao buscar anúncios: {response.status_code}, {response.text}")
+        return [], 0
 
 # Rota para buscar anúncios e renderizar página de alteração de estoque com paginação
 @app.route('/update_items', methods=['GET'])
 def update_items_page():
-    # Parâmetros de paginação
     page = int(request.args.get('page', 1))  # Página atual (padrão é 1)
     limit = 10  # Quantidade de itens por página
     offset = (page - 1) * limit  # Calcular o offset com base na página
@@ -78,10 +68,8 @@ def update_items_page():
     # Buscar anúncios com paginação
     items, total_items = get_items_with_pagination(offset, limit)
     
-    # Cálculo de páginas
     total_pages = (total_items + limit - 1) // limit  # Número total de páginas
     
-    # Renderizar a página de itens com paginação
     return render_template('update_items.html', items=items, page=page, total_pages=total_pages)
 
 # Rota para processar o código de autorização e obter os tokens

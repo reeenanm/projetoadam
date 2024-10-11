@@ -66,8 +66,8 @@
     <div class="container">
         {% for item in items %}
         <div class="item">
-            <h4>{{ item['title'] }}</h4>  <!-- Acessando o campo 'title' corretamente -->
-            <img src="{{ item['thumbnail'] }}" alt="Item Image">  <!-- Acessando o campo 'thumbnail' corretamente -->
+            <h4>{{ item['title'] }}</h4>
+            <img src="{{ item['thumbnail'] }}" alt="Item Image">
             <p>Preço: R$ {{ item['price'] }}</p>
             <p>Estoque disponível: {{ item['available_quantity'] }}</p>
             <input type="number" placeholder="Alterar estoque">
