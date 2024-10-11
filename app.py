@@ -153,3 +153,52 @@ def callback():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port)
+# Adicionando função para buscar anúncios por nome ou ID
+@app.route('/update_items', methods=['GET'])
+def update_items_page():
+    search_query = request.args.get('search')  # Capturar o termo de busca da URL
+    page = int(request.args.get('page', 1))  # Página atual (padrão é 1)
+    limit = 10  # Quantidade de itens por página
+    offset = (page - 1) * limit  # Calcular o offset com base na página
+
+    if search_query:
+        # Adicionando filtro de busca na API
+        url = f'https://api.mercadolibre.com/sites/MLB/search?q={search_query}&limit={limit}&offset={offset}'
+    else:
+        # Buscar todos os anúncios se não houver termo de busca
+        url = f'https://api.mercadolibre.com/users/{USER_ID}/items/search?offset={offset}&limit={limit}'
+    
+    headers = {
+        'Authorization': f'Bearer {ACCESS_TOKEN}'
+    }
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        data = response.json()
+        item_ids = data.get('results', [])
+        total_items = data['paging']['total']
+        
+        # Montar lista de detalhes dos itens
+        items = []
+        for item_id in item_ids:
+            item_details = get_item_details(item_id)
+            if item_details:
+                items.append({
+                    'id': item_details['id'],
+                    'title': item_details['title'],
+                    'price': item_details['price'],
+                    'available_quantity': item_details['available_quantity'],
+                    'thumbnail': item_details['thumbnail'],
+                    'visits': item_details.get('visits', 'N/A'),  # Visitas
+                    'sold_quantity': item_details.get('sold_quantity', 'N/A'),  # Vendas
+                    'status': item_details['status'],  # Status do anúncio
+                    'date_created': item_details['date_created']  # Data de criação
+                })
+        
+        total_pages = (total_items + limit - 1) // limit  # Número total de páginas
+        
+        return render_template('update_items.html', items=items, page=page, total_pages=total_pages)
+    else:
+        return "Erro ao buscar anúncios", 500
+

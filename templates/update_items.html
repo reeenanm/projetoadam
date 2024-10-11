@@ -11,7 +11,6 @@
             padding: 0;
             background-color: #f1f1f1;
         }
-        /* Barra lateral estilosa */
         .sidebar {
             width: 240px;
             height: 100vh;
@@ -42,7 +41,6 @@
             color: #fff;
             font-weight: bold;
         }
-        /* Estilo do conteúdo */
         .content {
             margin-left: 240px;
             padding: 20px;
@@ -62,7 +60,29 @@
             margin: 20px auto;
             padding: 10px;
         }
-        /* Galeria de anúncios */
+        .search-bar {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .search-bar input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .search-bar button {
+            background-color: #1abc9c;
+            color: white;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .search-bar button:hover {
+            background-color: #16a085;
+        }
         .gallery {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -106,6 +126,15 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
+        }
+        .item .info-block {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #555;
+            text-align: left;
+        }
+        .item .info-block strong {
+            color: #333;
         }
         .item button {
             background-color: #1abc9c;
@@ -156,11 +185,17 @@
 
 <header>
     <h1>PROJETO AD4M</h1>
-    <p>Desenvolvido por Renan Monteiro + ChatGPT - União Sinistra</p>
+    <p>Desenvolvido por Renan Monteiro + ChatGPT</p>
 </header>
 
 <div class="content">
     <div class="container">
+        <!-- Barra de busca -->
+        <div class="search-bar">
+            <input type="text" placeholder="Digite o nome ou código do anúncio">
+            <button>Buscar</button>
+        </div>
+
         <div class="gallery">
             {% for item in items %}
             <div class="item">
@@ -169,6 +204,12 @@
                     <h4>{{ item['title'] }}</h4>
                     <p>Preço: R$ {{ item['price'] }}</p>
                     <p>Estoque disponível: {{ item['available_quantity'] }}</p>
+                    <div class="info-block">
+                        <p><strong>Visitas:</strong> {{ item['visits'] }}</p>
+                        <p><strong>Vendas:</strong> {{ item['sold_quantity'] }}</p>
+                        <p><strong>Status:</strong> {{ item['status'] }}</p>
+                        <p><strong>Criado em:</strong> {{ item['date_created'] }}</p>
+                    </div>
                     <input type="number" placeholder="Alterar estoque">
                     <input type="text" placeholder="Alterar preço">
                     <button>Salvar</button>
@@ -190,6 +231,32 @@
         </div>
     </div>
 </div>
+<form id="update-form" method="POST" action="/update_all_items">
+    <div class="gallery">
+        {% for item in items %}
+        <div class="item">
+            <img src="{{ item['thumbnail'] }}" alt="{{ item['title'] }}" loading="lazy">
+            <div class="item-details">
+                <h4>{{ item['title'] }}</h4>
+                <p>Preço: R$ {{ item['price'] }}</p>
+                <p>Estoque disponível: {{ item['available_quantity'] }}</p>
+                <div class="info-block">
+                    <p><strong>Visitas:</strong> {{ item['visits'] }}</p>
+                    <p><strong>Vendas:</strong> {{ item['sold_quantity'] }}</p>
+                    <p><strong>Status:</strong> {{ item['status'] }}</p>
+                    <p><strong>Criado em:</strong> {{ item['date_created'] }}</p>
+                </div>
+                <!-- Inputs para atualização de estoque e preço -->
+                <input type="number" name="stock_{{ item['id'] }}" placeholder="Alterar estoque" value="{{ item['available_quantity'] }}">
+                <input type="text" name="price_{{ item['id'] }}" placeholder="Alterar preço" value="{{ item['price'] }}">
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Botão para salvar todas as mudanças -->
+    <button type="submit" class="update-btn">Salvar Alterações em Massa</button>
+</form>
 
 <footer>
     <p>© 2024 - Projeto AD4M</p>
