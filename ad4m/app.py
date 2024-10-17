@@ -5,9 +5,9 @@ import sqlite3
 app = Flask(__name__)
 
 # Configurações do Mercado Livre
-CLIENT_ID = 'SEU_CLIENT_ID'
-CLIENT_SECRET = 'SEU_CLIENT_SECRET'
-REDIRECT_URI = 'SUA_URL_DE_CALLBACK'
+CLIENT_ID = '6141251411464395'
+CLIENT_SECRET = 'ddLnHy0Dty6zhkqkI1ihLt7f1ms08r1e'
+REDIRECT_URI = 'projetoadam-production.up.railway.appprojetoadam-production.up.railway.app/ad4m/callback'
 
 # Função para salvar o token no banco de dados
 def save_token(user_id, platform, access_token, refresh_token, expires_in):
