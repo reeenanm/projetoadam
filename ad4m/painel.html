@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Gestão - Shopee e Mercado Livre</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f7f9fc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+
+        .sidebar {
+            background-color: #fff;
+            height: 100vh;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h4 {
+            color: #1a73e8;
+            font-weight: bold;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+
+        .sidebar .nav-link {
+            color: #555;
+            margin: 15px 0;
+            font-size: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #eef3fb;
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 14px;
+            color: #1a73e8;
+        }
+
+        .content {
+            margin-left: 270px;
+            padding: 40px;
+            background-color: #f7f9fc;
+        }
+
+        .content h2 {
+            color: #1a73e8;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .content h2 i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .box {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .metrics {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .metric-card {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            width: 30%;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .metric-card h4 {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .metric-card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        footer {
+            background-color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            left: 0;
+            margin-left: 250px;
+            box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.05);
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            footer {
+                margin-left: 0;
+            }
+
+            .metrics {
+                flex-direction: column;
+            }
+
+            .metric-card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h4>Painel de Gestão</h4>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="#"><i class="fas fa-box"></i>Pedidos</a>
+            <a class="nav-link" href="#"><i class="fas fa-exclamation-circle"></i>Reclamações</a>
+            <a class="nav-link" href="#"><i class="fas fa-shipping-fast"></i>Envios</a>
+            <a class="nav-link" href="#"><i class="fas fa-chart-line"></i>Relatórios</a>
+        </nav>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="content">
+        <!-- Visão Geral da Conta -->
+        <section id="visao-geral">
+            <h2>Visão Geral da Conta</h2>
+            <p>Bem-vindo, <strong>Renan Monteiro</strong>!</p>
+            <div class="metrics">
+                <div class="metric-card">
+                    <h4>Total de Pedidos</h4>
+                    <p>500</p>
+                </div>
+                <div class="metric-card">
+                    <h4>Faturamento Total</h4>
+                    <p>R$ 250.000,00</p>
+                </div>
+                <div class="metric-card">
+                    <h4>Reclamações Abertas</h4>
+                    <p>12</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Conexão de Contas -->
+        <section id="conexao-contas">
+            <h2><i class="fas fa-link"></i> Conectar Contas</h2>
+            <div class="box">
+                <p>Conecte suas contas da Shopee e do Mercado Livre abaixo:</p>
+                <button class="btn btn-primary mb-3" onclick="connectShopee()">Conectar Conta Shopee</button>
+                <button class="btn btn-warning" onclick="connectMercadoLivre()">Conectar Conta Mercado Livre</button>
+            </div>
+        </section>
+
+        <!-- Contas Conectadas -->
+        <section id="contas-conectadas">
+            <h2><i class="fas fa-user-check"></i> Contas Conectadas</h2>
+            <div class="box">
+                <ul id="connected-accounts-list">
+                    <!-- As contas conectadas serão listadas aqui -->
+                </ul>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2024 Painel de Gestão Shopee e Mercado Livre - Todos os direitos reservados</p>
+    </footer>
+
+    <!-- Script para conectar as contas -->
+    <script>
+        function connectShopee() {
+            const clientId = 'SEU_CLIENT_ID_SHOPEE';
+            const redirectUri = 'SUA_URL_DE_CALLBACK_SHOPEE';
+            const state = 'algum_estado_unico';
+            const authUrl = `https://partner.shopeemobile.com/api/v2/shop/auth_partner?partner_id=${clientId}&redirect=${redirectUri}&state=${state}`;
+            window.location.href = authUrl;
+        }
+
+        function connectMercadoLivre() {
+            const clientId = 'SEU_CLIENT_ID_ML';
+            const redirectUri = 'SUA_URL_DE_CALLBACK_ML';
+            const state = 'algum_estado_unico';
+            const authUrl = `https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
+            window.location.href = authUrl;
+        }
+
+        // Função para exibir as contas conectadas (simulação)
+        function loadConnectedAccounts() {
+            const connectedAccounts = [
+                { platform: 'Shopee', user: 'Loja A', status: 'Ativo' },
+                { platform: 'Mercado Livre', user: 'Loja B', status: 'Ativo' }
+            ];
+            
+            const list = document.getElementById('connected-accounts-list');
+            connectedAccounts.forEach(account => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<strong>${account.platform}</strong> - ${account.user} (Status: ${account.status})`;
+                list.appendChild(listItem);
+            });
+        }
+
+        // Carrega as contas conectadas ao carregar a página
+        window.onload = loadConnectedAccounts;
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

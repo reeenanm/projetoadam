@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial - Painel de Gestão</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f7f9fc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .hero-section {
+            background-color: #1a73e8;
+            color: white;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .hero-section h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .hero-section p {
+            font-size: 20px;
+            margin-bottom: 40px;
+        }
+
+        .hero-section .btn-primary {
+            background-color: #ffcc00;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 20px;
+            font-weight: bold;
+            color: black;
+            transition: background-color 0.3s;
+        }
+
+        .hero-section .btn-primary:hover {
+            background-color: #e6b800;
+        }
+
+        .features-section {
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .features-section h2 {
+            color: #1a73e8;
+            margin-bottom: 40px;
+            font-size: 32px;
+        }
+
+        .features-section .feature {
+            margin-bottom: 40px;
+        }
+
+        .features-section .feature i {
+            font-size: 40px;
+            color: #1a73e8;
+            margin-bottom: 20px;
+        }
+
+        .testimonials-section {
+            background-color: #f0f1f5;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .testimonials-section h2 {
+            color: #333;
+            margin-bottom: 40px;
+            font-size: 32px;
+        }
+
+        .testimonials-section .testimonial {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .testimonials-section .testimonial i {
+            color: #1a73e8;
+        }
+
+        .footer-section {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .footer-section a {
+            color: #ffcc00;
+            text-decoration: none;
+        }
+
+        .footer-section a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 36px;
+            }
+
+            .features-section h2, .testimonials-section h2 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <h1>Bem-vindo ao Painel de Gestão de Vendas</h1>
+        <p>Conecte suas contas da Shopee e Mercado Livre e gerencie suas vendas de forma eficiente e prática.</p>
+        <a href="login.html" class="btn btn-primary">Entrar no Painel</a>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2>Principais Funcionalidades</h2>
+            <div class="row">
+                <div class="col-md-4 feature">
+                    <i class="fas fa-box-open"></i>
+                    <h3>Gerenciamento de Pedidos</h3>
+                    <p>Acompanhe e gerencie todos os pedidos em um único lugar, com atualizações em tempo real.</p>
+                </div>
+                <div class="col-md-4 feature">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Relatórios Detalhados</h3>
+                    <p>Tenha acesso a relatórios completos sobre vendas, faturamento e performance das suas lojas.</p>
+                </div>
+                <div class="col-md-4 feature">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <h3>Reclamações e Suporte</h3>
+                    <p>Gerencie e responda reclamações dos clientes de forma rápida e organizada.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="container">
+            <h2>O que nossos usuários dizem</h2>
+            <div class="row">
+                <div class="col-md-4 testimonial">
+                    <i class="fas fa-quote-left"></i>
+                    <p>"Este painel me ajudou a organizar minhas vendas de forma muito mais eficiente!"</p>
+                    <p>- João Silva</p>
+                </div>
+                <div class="col-md-4 testimonial">
+                    <i class="fas fa-quote-left"></i>
+                    <p>"Agora consigo gerenciar minha loja da Shopee e Mercado Livre em um só lugar."</p>
+                    <p>- Ana Souza</p>
+                </div>
+                <div class="col-md-4 testimonial">
+                    <i class="fas fa-quote-left"></i>
+                    <p>"Relatórios detalhados e suporte ao cliente facilitam muito o meu dia a dia."</p>
+                    <p>- Pedro Lima</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <section class="footer-section">
+        <p>© 2024 Painel de Gestão Shopee e Mercado Livre - Todos os direitos reservados</p>
+        <p><a href="#">Termos de Serviço</a> | <a href="#">Política de Privacidade</a></p>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
